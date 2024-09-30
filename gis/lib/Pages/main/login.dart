@@ -1,10 +1,64 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:myproject/Pages/home.dart';
 import 'package:myproject/Pages/map.dart';
 import 'package:myproject/Pages/main/signup.dart';
+import '../../main/function/config.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
+
+  @override
+  _LoginPageState createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  String _errorMessage = '';
+
+  Future<void> _login() async {
+    String username = _usernameController.text;
+    String password = _passwordController.text;
+
+    if (username.isEmpty || password.isEmpty) {
+      setState(() {
+        _errorMessage = 'Please enter both username and password.';
+      });
+      return;
+    }
+
+    // Prepare the POST request
+    var url = Uri.parse(login.loginUrl);
+    var response = await http.post(
+      url,
+      body: {
+        'username': username,
+        'password': password,
+      },
+    );
+
+    // Handle the response
+    if (response.statusCode == 200) {
+      var responseData = json.decode(response.body);
+      if (responseData['status'] == 'success') {
+        // Navigate to SatelliteMapView on successful login
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const SatelliteMapView()),
+        );
+      } else {
+        setState(() {
+          _errorMessage = responseData['message'];
+        });
+      }
+    } else {
+      setState(() {
+        _errorMessage = 'Login failed. Please try again.';
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -12,10 +66,10 @@ class LoginPage extends StatelessWidget {
       body: Container(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
-        color: Color(0xffD4E3FF), // สีพื้นหลังฟ้า
+        color: Color(0xffD4E3FF),
         child: SingleChildScrollView(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.start, // ขยับทุกอย่างขึ้นด้านบน
+            mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
               SizedBox(height: 60),
               Text(
@@ -25,7 +79,7 @@ class LoginPage extends StatelessWidget {
                   fontSize: 35,
                   fontWeight: FontWeight.bold,
                   color: Colors.black,
-                  fontFamily: 'Roboto', // เปลี่ยนฟอนต์
+                  fontFamily: 'Roboto',
                 ),
               ),
               Center(
@@ -67,9 +121,10 @@ class LoginPage extends StatelessWidget {
                       ),
                       SizedBox(height: 16),
                       TextField(
+                        controller: _usernameController,
                         decoration: InputDecoration(
                           border: OutlineInputBorder(),
-                          labelText: 'users',
+                          labelText: 'Username',
                           labelStyle: TextStyle(
                             fontFamily: 'Roboto',
                           ),
@@ -77,9 +132,10 @@ class LoginPage extends StatelessWidget {
                       ),
                       SizedBox(height: 20),
                       TextField(
+                        controller: _passwordController,
                         decoration: InputDecoration(
                           border: OutlineInputBorder(),
-                          labelText: 'password',
+                          labelText: 'Password',
                           labelStyle: TextStyle(
                             fontFamily: 'Roboto',
                           ),
@@ -87,14 +143,14 @@ class LoginPage extends StatelessWidget {
                         obscureText: true,
                       ),
                       SizedBox(height: 20),
+                      if (_errorMessage.isNotEmpty)
+                        Text(
+                          _errorMessage,
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      SizedBox(height: 10),
                       InkWell(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const SatelliteMapView()),
-                          );
-                        },
+                        onTap: _login,
                         child: Container(
                           padding: EdgeInsets.symmetric(
                               vertical: 20.0, horizontal: 40.0),
@@ -111,75 +167,6 @@ class LoginPage extends StatelessWidget {
                                 fontFamily: 'Roboto',
                               ),
                             ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      Text(
-                        'ผู้ใช้ทั่วไปโปรดเข้าสู่ระบบด้วย',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Roboto',
-                        ),
-                      ),
-                      SizedBox(height: 20),
-                      InkWell(
-                        onTap: () {
-                          // เพิ่มฟังก์ชัน Google login
-                        },
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                              vertical: 15.0, horizontal: 40.0),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(30.0),
-                            border: Border.all(color: Colors.black, width: 2.0),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.login, color: Colors.red),
-                              SizedBox(width: 10),
-                              Text(
-                                'เข้าสู่ระบบด้วย Google',
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  color: Colors.black,
-                                  fontFamily: 'Roboto',
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 20),
-                      InkWell(
-                        onTap: () {
-                          // เพิ่มฟังก์ชัน Apple login
-                        },
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                              vertical: 15.0, horizontal: 40.0),
-                          decoration: BoxDecoration(
-                            color: Colors.black,
-                            borderRadius: BorderRadius.circular(30.0),
-                            border: Border.all(color: Colors.black, width: 2.0),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.apple, color: Colors.white),
-                              SizedBox(width: 10),
-                              Text(
-                                'เข้าสู่ระบบด้วย Apple',
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  color: Colors.white,
-                                  fontFamily: 'Roboto',
-                                ),
-                              ),
-                            ],
                           ),
                         ),
                       ),
