@@ -3,6 +3,7 @@ import 'package:myproject/Pages/map.dart';
 import 'package:myproject/Pages/setting.dart';
 import 'page2.dart'; // Import the Page2
 import 'logout.dart'; // Import the LogoutPage
+import 'package:myproject/services/database.connection.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
