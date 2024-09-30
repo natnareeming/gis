@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:myproject/Pages/login.dart';
-import 'home.dart'; // Import the home page or login page
+import 'package:myproject/Pages/main/login.dart';
+import '../home.dart'; // Import the home page or login page
 
 class LogoutPage extends StatelessWidget {
   const LogoutPage({super.key});
